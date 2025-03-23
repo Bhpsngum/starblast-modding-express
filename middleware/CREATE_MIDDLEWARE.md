@@ -25,7 +25,7 @@ This function binds to the middleware object by default.
 A function executing every tick, containing these parameters:
 - `game`: Game object
 - `middleware`: Current middleware config object
-- `stop`: This is a function, by default after execution of one midddleware, it will pass control to the next middleware event handler. Call this function to halt this chain after your execution.
+- `stop`: This is a function, by default after execution of one midddleware, it will pass control to the next middleware tick handler. Call this function to halt this chain after your middleware execution.
 
 This function binds to the `this` context of the mod by default.
 ### `event(event, game, middleware, stop)`
@@ -33,7 +33,7 @@ A function executing at every event received, containing these parameters:
 - `event`: Event object
 - `game`: Game object
 - `middleware`: Current middleware config object
-- `stop`: This is a function, by default after execution of one midddleware, it will pass control to the next middleware event handler. Call this function to halt this chain after your execution.
+- `stop`: This is a function, by default after execution of one midddleware, it will pass control to the next middleware event handler. Call this function to halt this chain after your middleware execution.
 
 This function binds to the `this` context of the mod by default.
 ### `playerTick(ship, game, middleware, stop)`

@@ -59,9 +59,10 @@ Instead, modify their modding-express equivalent values.
 Intialize your mod, this is preferably called after you load all the middleware and define your own custom game functions.
 
 ## Notes
-Upon first mod load, your tab can be lagging for a while, this is because of synchronous run within mod editor.
+- Upon first mod load, your tab can be lagging for a while, this is because of synchronous run within mod editor.
 
-The duration of the lag depends on your network connection, middleware complexity and amount of middlewares you are loading into the mod.
+	The duration of the lag depends on your network connection, middleware complexity and amount of middlewares you are loading into the mod.
+- When loading source URL, it is preferred to load from Raw GitHub content sites (other than github.com) due to CORS blocking.
 
 ## Modding Space ports
 The current version of Modding Express does not work in Modding Space.

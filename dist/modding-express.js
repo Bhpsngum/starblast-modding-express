@@ -62,7 +62,7 @@ const ModdingExpress = (function(){
 				new URL(url);
 			}
 			catch (e) {
-				url = `https://github.com/bhpsngum/starblast-modding-express/raw/main/middleware/${url}/index.js`;
+				url = `https://raw.githubusercontent.com/Bhpsngum/starblast-modding-express/refs/heads/main/middleware/${url}/index.js`;
 			}
 
 			return url;
