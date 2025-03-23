@@ -86,7 +86,7 @@ const ModdingExpress = (function(){
 					xmlhttp.send();
 				}
 				catch (e) {
-					error(`Failed to resolve URL ${handle}: Fetch failed.`);
+					error(`Failed to resolve URL "${handle}": Fetch failed.`);
 					return {};
 				}
 	
@@ -94,7 +94,7 @@ const ModdingExpress = (function(){
 					cachedModule = Function("game", xmlhttp.responseText)(game);
 				}
 				catch (e) {
-					error(`Failed to resolve URL ${handle}: Error when evaluating code.`);
+					error(`Failed to resolve URL "${handle}": Error when evaluating code.`);
 					error(e.stack);
 					return {};
 				}
