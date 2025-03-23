@@ -1,6 +1,6 @@
-const ModdingExpress = (function(){
+(function(){
 	let _this = this;
-	return function (opts) {
+	window.ModdingExpress = function (opts) {
 		if (!game.custom.__MODDING_EXPRESS_DATA__) game.custom.__MODDING_EXPRESS_DATA__ = {
 			loaders: new Map(),
 		};
