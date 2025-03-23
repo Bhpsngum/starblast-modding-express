@@ -192,6 +192,8 @@ const ModdingExpress = (function(){
 
 							if (halt) break;
 						}
+
+						safeExec(self.playerTick, _this, ship, game);
 					}
 				}
 
@@ -223,20 +225,24 @@ const ModdingExpress = (function(){
 
 					let ship = event.killer || event.ship;
 
-					if (ship) for (let mod of moduleStack) {
-						let halt = false;
-						let stop = function () {
-							halt = true;
+					if (ship) {
+						for (let mod of moduleStack) {
+							let halt = false;
+							let stop = function () {
+								halt = true;
+							}
+
+							let shipEvent = safeExec(mod.playerEvent, _this, ship, event, game, mod, stop);
+
+							if (!shipEvent.success) {
+								error(`Failed to run player event script for middleware ${moduleName(mod)}, caught error:`);
+								error(shipEvent.error?.stack || "");
+							}
+
+							if (halt) break;
 						}
 
-						let shipEvent = safeExec(mod.playerEvent, _this, ship, event, game, mod, stop);
-
-						if (!shipEvent.success) {
-							error(`Failed to run player event script for middleware ${moduleName(mod)}, caught error:`);
-							error(shipEvent.error?.stack || "");
-						}
-
-						if (halt) break;
+						safeExec(self.playerEvent, _this, ship, event, game);
 					}
 				}
 
