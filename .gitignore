@@ -1,2 +1,8 @@
+# NodeJS and NPM auto-generated content
+package.json
+package-lock.json
+node_modules
+
+# Macintosh auto-generated files
 .DS_Store
 ._.DS_Store
