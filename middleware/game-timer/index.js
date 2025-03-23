@@ -4,6 +4,7 @@ return {
 	name: "Game Timer",
 	author: "Bhpsngum",
 	license: "MIT",
+	version: "1.0.0",
 	load: function () {
 		if (!game.custom.timeManager) game.custom.timeManager = { id_pool: 0, jobs: new Map() };
 		timeManager = game.custom.timeManager;

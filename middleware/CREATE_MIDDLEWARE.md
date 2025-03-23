@@ -8,6 +8,8 @@ A middleware object can contains these fields:
 Name of the middleware
 ### `author`
 Author of the middleware
+### `version`
+A string, version of the middleware
 ### `license`
 License attached to this code, defaults to [ISC](https://en.wikipedia.org/wiki/ISC_license)
 ### `load(options)`

@@ -57,3 +57,8 @@ Instead, modify their modding-express equivalent values.
 
 ### `initialize()`
 Intialize your mod, this is preferably called after you load all the middleware and define your own custom game functions.
+
+## Modding Space ports
+The current version of Modding Express does not work in Modding Space.
+
+A MS-compatible version is in the progress.

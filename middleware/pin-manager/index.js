@@ -97,6 +97,7 @@ return {
 	name: "PIN Manager",
 	author: "Bhpsngum",
 	license: "MIT",
+	version: "1.0.0",
 	load: function (options) {
 		Object.assign(OPTIONS, options);
 		if (game.custom.PIN_DATA == null) game.custom.PIN_DATA = new Map();
@@ -121,7 +122,7 @@ return {
 			}
 		};
 	},
-	playerTick: function (ship, game, stop) {
+	playerTick: function (ship, game, _, stop) {
 		if (!ship.custom.pin_data) {
 			ship.custom.pin_data = {
 				status: "PENDING",
@@ -162,7 +163,7 @@ return {
 			stop();
 		}
 	},
-	playerEvent: function (ship, event, game, stop) {
+	playerEvent: function (ship, event, game, _, stop) {
 		let { name, id: component } = event;
 
 		if (name !== "ui_component_clicked" || "string" !== typeof component) return;

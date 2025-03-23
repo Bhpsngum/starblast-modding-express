@@ -91,7 +91,7 @@ const ModdingExpress = (function(){
 				}
 	
 				try {
-					cachedModule = Function("game", xmlhttp.responseText)();
+					cachedModule = Function("game", xmlhttp.responseText)(game);
 				}
 				catch (e) {
 					error(`Failed to resolve URL ${handle}: Error when evaluating code.`);
@@ -248,9 +248,3 @@ const ModdingExpress = (function(){
 		}
 	}
 }).call(this);
-
-const mod = ModdingExpress();
-
-mod.load("https://starblast.io");
-
-mod.initialize();
