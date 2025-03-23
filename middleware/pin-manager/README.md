@@ -41,6 +41,7 @@ Parameters:
 - `additional_info`: Info associated with this PIN
 
 Returns:
+
 String containing a PIN code used for verification
 
 ### Check if user is verified
@@ -48,7 +49,9 @@ String containing a PIN code used for verification
 PIN.isVerified(ship)
 ```
 
-Returns: A boolean, indicating wether user has been verified
+Returns:
+
+A boolean, indicating wether user has been verified
 
 ### Accessing addtional info
 For every ship, `ship.custom.PIN_DATA` (if exists) is an object contains these fields:

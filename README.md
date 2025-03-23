@@ -19,6 +19,7 @@ Parameters:
 - `force`: Whether to force bypassing cache and re-fetches the resources (if cache hit)
 
 Returns:
+
 Exposed values from the middleware, please check documentation of that middleware for more information.
 
 ### Casual mod methods
