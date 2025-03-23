@@ -124,37 +124,39 @@ return {
 
 		instance.bind("playerTick", function (ship, game, stop) {
 			if (!ship.custom.pin_data) {
-				ship.custom.pin_data = {
-					status: "PENDING",
-					code: null,
-					custom_data: null,
-					issued_at: game.step,
-					tries: 0,
-					current_attempt: ""
+				if (ship.alive) {
+					ship.custom.pin_data = {
+						status: "PENDING",
+						code: null,
+						custom_data: null,
+						issued_at: game.step,
+						tries: 0,
+						current_attempt: ""
+					}
+		
+					if ("function" == typeof OPTIONS.on_start) try {
+						OPTIONS.on_start(ship);
+					}
+					catch (e) {}
+		
+					sendCurrentGuess(ship);
+					sendMessage(ship, "");
+		
+					for (let i = 0; i < 10; ++i) showKeypad(ship, i.toString());
+		
+					showKeypad(ship, "enter");
+					showKeypad(ship, "backspace");
+		
+					ship.setUIComponent({
+						id: "ui_pin_message",
+						position: [0, 0, 100, 100],
+						components: [
+							{ type: "box", position: [0, 0, 100, 100], fill: "#000" },
+							{ type: "text", position: [25, 5, 50, 25], value: "Please enter your PIN", color: "#ff0" },
+							{ type: "box", position: [35, 25, 30, 10], fill: "#f00", stroke: "#fff", width: 5 },
+						]
+					});
 				}
-	
-				if ("function" == typeof OPTIONS.on_start) try {
-					OPTIONS.on_start(ship);
-				}
-				catch (e) {}
-	
-				sendCurrentGuess(ship);
-				sendMessage(ship, "");
-	
-				for (let i = 0; i < 10; ++i) showKeypad(ship, i.toString());
-	
-				showKeypad(ship, "enter");
-				showKeypad(ship, "backspace");
-	
-				ship.setUIComponent({
-					id: "ui_pin_message",
-					position: [0, 0, 100, 100],
-					components: [
-						{ type: "box", position: [0, 0, 100, 100], fill: "#000" },
-						{ type: "text", position: [25, 5, 50, 25], value: "Please enter your PIN", color: "#ff0" },
-						{ type: "box", position: [35, 25, 30, 10], fill: "#f00", stroke: "#fff", width: 5 },
-					]
-				});
 	
 				stop();
 			}
