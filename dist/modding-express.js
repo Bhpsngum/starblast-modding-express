@@ -193,7 +193,12 @@ const ModdingExpress = (function(){
 							if (halt) break;
 						}
 
-						safeExec(self.playerTick, _this, ship, game);
+						let res = safeExec(self.playerTick, _this, ship, game);
+
+						if (!res.success) {
+							error(`Caught error while running custom player tick script:`);
+							error(res.error?.stack || "");
+						}
 					}
 				}
 
@@ -242,7 +247,12 @@ const ModdingExpress = (function(){
 							if (halt) break;
 						}
 
-						safeExec(self.playerEvent, _this, ship, event, game);
+						let res = safeExec(self.playerEvent, _this, ship, event, game);
+
+						if (!res.success) {
+							error(`Caught error while running custom player event script:`);
+							error(res.error?.stack || "");
+						}
 					}
 				}
 
