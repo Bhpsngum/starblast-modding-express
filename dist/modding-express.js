@@ -50,7 +50,7 @@ const ModdingExpress = (function(){
 			}
 	
 			moduleStack.push(obj);
-			message(`Loaded module ${moduleName(obj)}`);
+			message(`Loaded module: ${moduleName(obj)}`);
 	
 			return obj.exports;
 		}
@@ -76,7 +76,7 @@ const ModdingExpress = (function(){
 	
 				let cachedModule = expressData.loaders.get(handle);
 	
-				if (!force && cachedModule) return cachedModule.exports;
+				if (!force && cachedModule) return loadModule(cachedModule, opts, handle);
 	
 				let xmlhttp = new XMLHttpRequest();
 	

@@ -1,0 +1,25 @@
+name: Create minified distribution
+run-name: Create minified distribution
+on:
+  push:
+    branches: main
+    paths:
+      - 'dist/modding-express.js'
+  workflow_dispatch:
+jobs:
+  Compile-Templates:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+    - name: Output minified content
+      run: npx minify --js ./dist/modding-express.js > ./dist/modding-express.min.js
+    - name: Deploy release files
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git commit -m "[Automatic] Create minified distribution"
+        git push -u https://${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD
