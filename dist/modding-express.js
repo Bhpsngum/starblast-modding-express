@@ -54,7 +54,6 @@ const ModdingExpress = (function(){
 				throw "";
 			}
 	
-			moduleStack.push(obj);
 			message(`Loaded module: ${moduleName(obj)}`);
 	
 			return obj.exports;
@@ -74,7 +73,7 @@ const ModdingExpress = (function(){
 		}
 	
 		let dist = {
-			bind: function (event, ...handlers) {
+			unbind: function (event, ...handlers) {
 				let loaders = moduleStack.get(event);
 				if (!loaders) return;
 
@@ -83,7 +82,7 @@ const ModdingExpress = (function(){
 					if (index > -1) loaders.splice(index, 1);
 				}
 			},
-			unbind: function (event, ...handlers) {
+			bind: function (event, ...handlers) {
 				let loaders = moduleStack.get(event);
 				if (!loaders) return;
 

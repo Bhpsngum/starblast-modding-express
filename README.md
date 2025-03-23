@@ -54,7 +54,7 @@ mod.bind("playerEvent", function (ship, event, game, stop) {
 ```
 You can also call `mod.unbind(name, ...handlers)` to remove unwanted handlers.
 
-`mod.options` will act as a base options for the middlewares to run.
+All handler functions are bound to `this` context of the mod by default, and`mod.options` will act as a base options for the middlewares to run.
 
 For backwards compatibilty, modding express will also register values from your `this` context if exists.
 
