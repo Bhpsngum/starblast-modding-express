@@ -15,7 +15,9 @@ jobs:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
     - name: Output minified content
-      run: npx minify ./dist/modding-express.js > ./dist/modding-express.min.js
+      run: |
+        npx minify ./dist/modding-express.js > ./dist/modding-express.min.js
+        sed -i 's/var\s[a-zA-Z]\{1,\}=/const ModdingExpress=/1' ./dist/modding-express.min.js
     - name: Deploy release files
       run: |
         git config user.name "github-actions[bot]"
