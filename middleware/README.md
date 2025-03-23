@@ -12,4 +12,4 @@ mod.load("<middleware name>", options);
 ```
 
 
-For documentation on how to create a middleware, please check [CREATE_MIDDLEWARE.md](this file).
+For documentation on how to create a middleware, please check [this file](./CREATE_MIDDLEWARE.md).
