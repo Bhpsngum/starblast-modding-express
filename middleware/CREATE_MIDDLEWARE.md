@@ -12,38 +12,15 @@ Author of the middleware
 A string, version of the middleware
 ### `license`
 License attached to this code, defaults to [ISC](https://en.wikipedia.org/wiki/ISC_license)
-### `load(options)`
+### `load(instance, options)`
 A function executing when middleware is first loaded, containing these parameters:
+- `instance`: Modding Express instance.
 - `options`: User-options passed to this middleware
 
 This function binds to the middleware object by default.
-### `initialize(game)`
-A function executing when user calls `mod.initialize()` (preferably after all middlewares have been loaded)
-
-This function binds to the middleware object by default.
-### `tick(game, middleware, stop)`
-A function executing every tick, containing these parameters:
-- `game`: Game object
-- `middleware`: Current middleware config object
-- `stop`: This is a function, by default after execution of one midddleware, it will pass control to the next middleware tick handler. Call this function to halt this chain after your middleware execution.
-
-This function binds to the `this` context of the mod by default.
-### `event(event, game, middleware, stop)`
-A function executing at every event received, containing these parameters:
-- `event`: Event object
-- `game`: Game object
-- `middleware`: Current middleware config object
-- `stop`: This is a function, by default after execution of one midddleware, it will pass control to the next middleware event handler. Call this function to halt this chain after your middleware execution.
-
-This function binds to the `this` context of the mod by default.
-### `playerTick(ship, game, middleware, stop)`
-A function executing for a ship at every tick.
-Note that this will execute separately after the global `tick` handler above
-
-This function binds to the middleware object by default.
-### `playerEvent(ship, event, game, middleware, stop)`
-A function, acts as an event handler for a ship.
-Note that this will execute separately after the global `event` handler above
+### `initialize(instance)`
+A function executing when user calls `mod.initialize()` (preferably after all middlewares have been loaded), with these parameters:
+- `instance`: Modding Express instance.
 
 This function binds to the middleware object by default.
 ### `commands`

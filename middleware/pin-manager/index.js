@@ -98,7 +98,7 @@ return {
 	author: "Bhpsngum",
 	license: "MIT",
 	version: "1.0.0",
-	load: function (options) {
+	load: function (instance, options) {
 		Object.assign(OPTIONS, options);
 		if (game.custom.PIN_DATA == null) game.custom.PIN_DATA = new Map();
 		codeManager = {
@@ -121,123 +121,125 @@ return {
 				return code;
 			}
 		};
-	},
-	playerTick: function (ship, game, _, stop) {
-		if (!ship.custom.pin_data) {
-			ship.custom.pin_data = {
-				status: "PENDING",
-				code: null,
-				custom_data: null,
-				issued_at: game.step,
-				tries: 0,
-				current_attempt: ""
+
+		instance.bind("playerTick", function (ship, game, stop) {
+			if (!ship.custom.pin_data) {
+				ship.custom.pin_data = {
+					status: "PENDING",
+					code: null,
+					custom_data: null,
+					issued_at: game.step,
+					tries: 0,
+					current_attempt: ""
+				}
+	
+				if ("function" == typeof OPTIONS.on_start) try {
+					OPTIONS.on_start(ship);
+				}
+				catch (e) {}
+	
+				sendCurrentGuess(ship);
+				sendMessage(ship, "");
+	
+				for (let i = 0; i < 10; ++i) showKeypad(ship, i.toString());
+	
+				showKeypad(ship, "enter");
+				showKeypad(ship, "backspace");
+	
+				ship.setUIComponent({
+					id: "ui_pin_message",
+					position: [0, 0, 100, 100],
+					components: [
+						{ type: "box", position: [0, 0, 100, 100], fill: "#000" },
+						{ type: "text", position: [25, 5, 50, 25], value: "Please enter your PIN", color: "#ff0" },
+						{ type: "box", position: [35, 25, 30, 10], fill: "#f00", stroke: "#fff", width: 5 },
+					]
+				});
+	
+				stop();
 			}
-
-			if ("function" == typeof OPTIONS.on_start) try {
-				OPTIONS.on_start(ship);
+			else if (ship.custom.pin_data.status == "PENDING" && game.step - ship.custom.pin_data.issued_at > OPTIONS.time_limit * 60) {
+				failShip(ship, "Timed out.");
+				stop();
 			}
-			catch (e) {}
+		});
 
-			sendCurrentGuess(ship);
-			sendMessage(ship, "");
-
-			for (let i = 0; i < 10; ++i) showKeypad(ship, i.toString());
-
-			showKeypad(ship, "enter");
-			showKeypad(ship, "backspace");
-
-			ship.setUIComponent({
-				id: "ui_pin_message",
-				position: [0, 0, 100, 100],
-				components: [
-					{ type: "box", position: [0, 0, 100, 100], fill: "#000" },
-					{ type: "text", position: [25, 5, 50, 25], value: "Please enter your PIN", color: "#ff0" },
-					{ type: "box", position: [35, 25, 30, 10], fill: "#f00", stroke: "#fff", width: 5 },
-				]
-			});
-
-			stop();
-		}
-		else if (ship.custom.pin_data.status == "PENDING" && game.step - ship.custom.pin_data.issued_at > OPTIONS.time_limit * 60) {
-			failShip(ship, "Timed out.");
-			stop();
-		}
-	},
-	playerEvent: function (ship, event, game, _, stop) {
-		let { name, id: component } = event;
-
-		if (name !== "ui_component_clicked" || "string" !== typeof component) return;
-		
-		if (component.startsWith(code_prefix)) stop();
-		
-		if (
-			ship.custom.pin_data?.status == "PENDING" &&
-			(ship.custom.pin_data.last_keypress == null || game.step - ship.custom.pin_data.last_keypress > OPTIONS.cooldown * 60)
-		) {
-			let { pin_data } = ship.custom;
-			pin_data.last_keypress = game.step;
-			let key = component.replace(code_prefix, "");
-
-			switch (key) {
-				case "enter":
-					if (pin_data.current_attempt.length < OPTIONS.digits) {
-						sendMessage(ship, "Not enough digits.", true);
+		instance.bind("playerEvent", function (ship, event, game, stop) {
+			let { name, id: component } = event;
+	
+			if (name !== "ui_component_clicked" || "string" !== typeof component) return;
+			
+			if (component.startsWith(code_prefix)) stop();
+			
+			if (
+				ship.custom.pin_data?.status == "PENDING" &&
+				(ship.custom.pin_data.last_keypress == null || game.step - ship.custom.pin_data.last_keypress > OPTIONS.cooldown * 60)
+			) {
+				let { pin_data } = ship.custom;
+				pin_data.last_keypress = game.step;
+				let key = component.replace(code_prefix, "");
+	
+				switch (key) {
+					case "enter":
+						if (pin_data.current_attempt.length < OPTIONS.digits) {
+							sendMessage(ship, "Not enough digits.", true);
+							break;
+						}
+	
+						let currentData = codeManager.pool.get(pin_data.current_attempt);
+						if (currentData) codeManager.pool.delete(pin_data.current_attempt);
+	
+						if (currentData && currentData.timeout > game.step) {
+							let code = pin_data.current_attempt;
+							pin_data.code = code;
+							pin_data.custom_data = currentData.custom_data;
+							codeManager.pool.delete(code);
+							pin_data.status = "VERIFIED";
+							pin_data.finished_at = game.step;
+							for (let i = 0; i < 10; ++i) ship.setUIComponent({ id: code_prefix + i, visible: false, position: [0, 0, 0, 0] });
+							for (let i of ["backspace", "enter"]) ship.setUIComponent({ id: code_prefix + i, visible: false, position: [0, 0, 0, 0] });
+	
+							for (let i of ["input", "notice", "message"]) ship.setUIComponent({ id: "ui_pin_" + i, visible: false, position: [0, 0, 0, 0] });
+								
+							if ("function" == typeof OPTIONS.on_success) try {
+								let message = OPTIONS.on_success(ship, pin_data);
+								if (message) echo(`[[bg;#66ff00;][PIN\\] ${message}]`);
+							}
+							catch (e) {}
+						}
+						else {
+							++pin_data.tries;
+							let { max_tries } = OPTIONS, message = "Incorrect PIN.";
+							if (max_tries && Number.isFinite(max_tries)) {
+								if (pin_data.tries >= max_tries) {
+									failShip(ship, "Too many failed attempts.");
+									break;
+								}
+								else {
+									let attempt = max_tries - pin_data.tries;
+									message += attempt > 1 ? ` ${attempt} tries left.` : ` Last chance.`;
+								}
+							}
+							sendMessage(ship, message, true);
+							if (pin_data.current_attempt) {
+								pin_data.current_attempt = "";
+								sendCurrentGuess(ship);
+							}
+						}
 						break;
-					}
-
-					let currentData = codeManager.pool.get(pin_data.current_attempt);
-					if (currentData) codeManager.pool.delete(pin_data.current_attempt);
-
-					if (currentData && currentData.timeout > game.step) {
-						let code = pin_data.current_attempt;
-						pin_data.code = code;
-						pin_data.custom_data = currentData.custom_data;
-						codeManager.pool.delete(code);
-						pin_data.status = "VERIFIED";
-						pin_data.finished_at = game.step;
-						for (let i = 0; i < 10; ++i) ship.setUIComponent({ id: code_prefix + i, visible: false, position: [0, 0, 0, 0] });
-						for (let i of ["backspace", "enter"]) ship.setUIComponent({ id: code_prefix + i, visible: false, position: [0, 0, 0, 0] });
-
-						for (let i of ["input", "notice", "message"]) ship.setUIComponent({ id: "ui_pin_" + i, visible: false, position: [0, 0, 0, 0] });
-							
-						if ("function" == typeof OPTIONS.on_success) try {
-							let message = OPTIONS.on_success(ship, pin_data);
-							if (message) echo(`[[bg;#66ff00;][PIN\\] ${message}]`);
-						}
-						catch (e) {}
-					}
-					else {
-						++pin_data.tries;
-						let { max_tries } = OPTIONS, message = "Incorrect PIN.";
-						if (max_tries && Number.isFinite(max_tries)) {
-							if (pin_data.tries >= max_tries) {
-								failShip(ship, "Too many failed attempts.");
-								break;
-							}
-							else {
-								let attempt = max_tries - pin_data.tries;
-								message += attempt > 1 ? ` ${attempt} tries left.` : ` Last chance.`;
-							}
-						}
-						sendMessage(ship, message, true);
-						if (pin_data.current_attempt) {
-							pin_data.current_attempt = "";
+					case "backspace":
+						if (pin_data.current_attempt.length < 1) break;
+						pin_data.current_attempt = pin_data.current_attempt.slice(0, -1);
+						sendCurrentGuess(ship);
+						break;
+					default:
+						if (/^\d$/.test(key) && pin_data.current_attempt.length < OPTIONS.digits) {
+							pin_data.current_attempt += key;
 							sendCurrentGuess(ship);
 						}
-					}
-					break;
-				case "backspace":
-					if (pin_data.current_attempt.length < 1) break;
-					pin_data.current_attempt = pin_data.current_attempt.slice(0, -1);
-					sendCurrentGuess(ship);
-					break;
-				default:
-					if (/^\d$/.test(key) && pin_data.current_attempt.length < OPTIONS.digits) {
-						pin_data.current_attempt += key;
-						sendCurrentGuess(ship);
-					}
+				}
 			}
-		}
+		});
 	},
 	exports: {
 		create: function (custom_data, expiry) {

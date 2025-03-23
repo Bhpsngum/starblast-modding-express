@@ -5,7 +5,12 @@ const ModdingExpress = (function(){
 			loaders: new Map(),
 		};
 	
-		let moduleStack = [];
+		let moduleStack = new Map([
+			["tick", []],
+			["event", []],
+			["playerTick", []],
+			["playerEvent", []],
+		]);
 	
 		let { terminal, commands } = game.modding, { echo } = terminal;
 	
@@ -41,7 +46,7 @@ const ModdingExpress = (function(){
 				throw "";
 			}
 	
-			let init = safeExec(obj.load, obj, opts);
+			let init = safeExec(obj.load, obj, dist, opts);
 	
 			if (!init.success) {
 				error(`Failed to run load script for middleware ${moduleName(obj)}, caught error:`);
@@ -68,7 +73,22 @@ const ModdingExpress = (function(){
 			return url;
 		}
 	
-		return {
+		let dist = {
+			bind: function (event, ...handlers) {
+				let loaders = moduleStack.get(event);
+				if (!loaders) return;
+
+				for (let handler of handlers) {
+					let index = loaders.indexOf(handler);
+					if (index > -1) loaders.splice(index, 1);
+				}
+			},
+			unbind: function (event, ...handlers) {
+				let loaders = moduleStack.get(event);
+				if (!loaders) return;
+
+				loaders.push(...handlers);
+			},
 			load: function (handle, opts, force = false) {
 				if ("string" !== typeof handle) return loadModule(handle, opts);
 
@@ -113,7 +133,7 @@ const ModdingExpress = (function(){
 				// initialize and load options + commands
 
 				for (let mod of moduleStack) {
-					let init = safeExec(mod.initialize, mod, game);
+					let init = safeExec(mod.initialize, mod, self, game);
 		
 					if (!init.success) {
 						error(`Failed to run initialization script for middleware ${moduleName(mod)}, caught error:`);
@@ -156,48 +176,39 @@ const ModdingExpress = (function(){
 				}
 
 				// load tick
-				mod.tick = mod.tick || _this.tick;
+				if (_this.tick) this.bind("tick", _this.tick);
 				let tick = function (game) {
-					for (let mod of moduleStack) {
+					for (let mod of moduleStack.get("tick")) {
 						let halt = false;
 						let stop = function () {
 							halt = true;
 						}
 
-						let tick = safeExec(mod.tick, _this, game, mod, stop);
+						let tick = safeExec(mod, _this, game, stop);
 
 						if (!tick.success) {
-							error(`Failed to run tick script for middleware ${moduleName(mod)}, caught error:`);
+							error(`Failed to run tick script, caught error:`);
 							error(tick.error?.stack || "");
 						}
 
 						if (halt) break;
 					}
 
-					safeExec(self.tick, _this, game);
-
 					for (let ship of game.ships) {
-						for (let mod of moduleStack) {
+						for (let mod of moduleStack.get("playerTick")) {
 							let halt = false;
 							let stop = function () {
 								halt = true;
 							}
 
-							let tick = safeExec(mod.playerTick, mod, ship, game, mod, stop);
+							let tick = safeExec(mod, _this, ship, game, stop);
 
 							if (!tick.success) {
-								error(`Failed to run player tick script for middleware ${moduleName(mod)}, caught error:`);
+								error(`Failed to run player tick script, caught error:`);
 								error(tick.error?.stack || "");
 							}
 
 							if (halt) break;
-						}
-
-						let res = safeExec(self.playerTick, _this, ship, game);
-
-						if (!res.success) {
-							error(`Caught error while running custom player tick script:`);
-							error(res.error?.stack || "");
 						}
 					}
 				}
@@ -208,50 +219,41 @@ const ModdingExpress = (function(){
 				}
 
 				// load event
-				mod.event = mod.event || _this.event;
+				if (_this.event) this.bind("event", _this.event);
 				let Event = function (event, game) {
-					for (let mod of moduleStack) {
+					for (let mod of moduleStack.get("event")) {
 						let halt = false;
 						let stop = function () {
 							halt = true;
 						}
 
-						let eventExec = safeExec(mod.event, mod, event, game, mod, stop);
+						let eventExec = safeExec(mod, _this, event, game, stop);
 
 						if (!eventExec.success) {
-							error(`Failed to run event script for middleware ${moduleName(mod)}, caught error:`);
+							error(`Failed to run event script, caught error:`);
 							error(eventExec.error?.stack || "");
 						}
 
 						if (halt) break;
 					}
 
-					safeExec(self.event, _this, event, game);
-
 					let ship = event.killer || event.ship;
 
 					if (ship) {
-						for (let mod of moduleStack) {
+						for (let mod of moduleStack.get("playerEvent")) {
 							let halt = false;
 							let stop = function () {
 								halt = true;
 							}
 
-							let shipEvent = safeExec(mod.playerEvent, _this, ship, event, game, mod, stop);
+							let shipEvent = safeExec(mod, _this, ship, event, game, stop);
 
 							if (!shipEvent.success) {
-								error(`Failed to run player event script for middleware ${moduleName(mod)}, caught error:`);
+								error(`Failed to run player event script, caught error:`);
 								error(shipEvent.error?.stack || "");
 							}
 
 							if (halt) break;
-						}
-
-						let res = safeExec(self.playerEvent, _this, ship, event, game);
-
-						if (!res.success) {
-							error(`Caught error while running custom player event script:`);
-							error(res.error?.stack || "");
 						}
 					}
 				}
@@ -262,5 +264,7 @@ const ModdingExpress = (function(){
 				}
 			}
 		}
+
+		return dist;
 	}
 }).call(this);

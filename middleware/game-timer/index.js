@@ -5,9 +5,25 @@ return {
 	author: "Bhpsngum",
 	license: "MIT",
 	version: "1.0.0",
-	load: function () {
+	load: function (instance) {
 		if (!game.custom.timeManager) game.custom.timeManager = { id_pool: 0, jobs: new Map() };
 		timeManager = game.custom.timeManager;
+
+		instance.bind("tick", function (game) {
+			for (let i of timeManager.jobs) {
+				let job = i[1];
+				if (game.step >= job.time) {
+					try {
+						job.f.call(game, ...job.args);
+					}
+					catch (err) {
+						console.error(err);
+					}
+					if (job.repeat) job.time += job.interval;
+					else timeManager.jobs.delete(i[0]);
+				}
+			}
+		});
 	},
 	exports: {
 		setTimeout: function (f, time, ...args) {
@@ -28,21 +44,6 @@ return {
 		},
 		clearInterval: function (id) {
 			timeManager.jobs.delete(id);
-		}
-	},
-	tick: function (game) {
-		for (let i of timeManager.jobs) {
-			let job = i[1];
-			if (game.step >= job.time) {
-				try {
-					job.f.call(game, ...job.args);
-				}
-				catch (err) {
-					console.error(err);
-				}
-				if (job.repeat) job.time += job.interval;
-				else timeManager.jobs.delete(i[0]);
-			}
 		}
 	}
 }

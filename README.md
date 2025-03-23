@@ -23,33 +23,40 @@ Returns:
 Exposed values from the middleware, please check documentation of that middleware for more information.
 
 ### Casual mod methods
-Instead of using `this`, now replaces with your modding express object:
+Instead of using `this`, now you can register multiple handlers for a single event by using `mod.bind(name, ...handlers)`.
+
+Supported handler names are `tick`, `event`, `playerTick` and `playerEvent`.
 
 ```js
-mod.tick = function (game) {
-	// global custom tick handler
-}
+mod.bind("tick", function (game, stop) {
+	
+}, function (game) {
 
-mod.event = function (event, game) {
-	// global custom event handler
-}
+});
+
+mod.bind("event", function (event, game, stop) {
+	
+}, function (event, game) {
+	
+});
 
 mod.options = {
 	root_mode: "survival"
 }
 
-mod.playerTick = function (ship, game) {
+mod.bind("playerTick", function (ship, game, stop) {
 	// custom, executes for every ship in your mod every tick
-}
+});
 
-mod.playerEvent = function (ship, event, game) {
+mod.bind("playerEvent", function (ship, event, game, stop) {
 	// custom event handler for every ships in your mod
-}
-
+});
 ```
-`mod.tick` and `mod.event` will execute after their respective middleware execution chance is finished, while `mod.options` will act as a base options for the middlewares to run.
+You can also call `mod.unbind(name, ...handlers)` to remove unwanted handlers.
 
-For backwards compatibilty, modding express will take values from your `this` context if it's mising.
+`mod.options` will act as a base options for the middlewares to run.
+
+For backwards compatibilty, modding express will also register values from your `this` context if exists.
 
 Note that modification to values of `this` context of mod is discouraged, as it can introduce problem with the Modding Express code.
 
