@@ -33,12 +33,12 @@ const PIN = mod.load("pin-manager", OPTIONS);
 ## Usage
 ### Create a PIN
 ```js
-PIN.create(expiry, additional_info);
+PIN.create(additional_info, expiry = 60);
 ```
 
 Parameters:
-- `expiry`: Expiry in seconds (synced to game ticking)
 - `additional_info`: Info associated with this PIN
+- `expiry`: Expiry in seconds (synced to game ticking)
 
 Returns:
 

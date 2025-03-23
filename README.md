@@ -2,7 +2,7 @@
 Middleware-driven and player-driven feature for Starblast Modding, inspired by Express.js
 
 ## Installation
-To get this feature, copy any of the file in [./dist](`dist`) folder to **the start** of your code.
+To get this feature, copy any of the file in [`dist`](./dist) folder to **the start** of your code.
 ## Usage
 ### Create a modding express object
 ```js
@@ -14,7 +14,7 @@ The modding express object exposes these functions
 Loads the middleware.
 
 Parameters:
-- `identifierOrConfigObject`: can be a middleware config object, a URL string, or a string of middleware name (if the middleware you want to load is within the [./middleware](middleware) folder)
+- `identifierOrConfigObject`: can be a middleware config object, a URL string, or a string of middleware name (if the middleware you want to load is within the [`middleware`](./middleware) folder)
 - `options`: Options you want to pass to the middleware upon loading, please check documentation of that middleware for more information
 - `force`: Whether to force bypassing cache and re-fetches the resources (if cache hit)
 
@@ -57,6 +57,11 @@ Instead, modify their modding-express equivalent values.
 
 ### `initialize()`
 Intialize your mod, this is preferably called after you load all the middleware and define your own custom game functions.
+
+## Notes
+Upon first mod load, your tab can be lagging for a while, this is because of synchronous run within mod editor.
+
+The duration of the lag depends on your network connection, middleware complexity and amount of middlewares you are loading into the mod.
 
 ## Modding Space ports
 The current version of Modding Express does not work in Modding Space.

@@ -12,14 +12,14 @@ return {
 	exports: {
 		setTimeout: function (f, time, ...args) {
 			let id = timeManager.id_pool++;
-			if ("string" === typeof f) f = Function(f).bind(game);
+			if ("string" === typeof f) f = (function () { eval(f) }).bind(game);
 			timeManager.jobs.set(id, { f, time: game.step + +time, args, repeat: false });
 			return id;
 		},
 		setInterval: function (f, time, ...args) {
 			let id = timeManager.id_pool++;
 			time = +time;
-			if ("string" === typeof f) f = Function(f).bind(game);
+			if ("string" === typeof f) f = (function () { eval(f) }).bind(game);
 			timeManager.jobs.set(id, { f, time: game.step + +time, interval: time, args, repeat: true });
 			return id;
 		},
