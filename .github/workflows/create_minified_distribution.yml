@@ -7,7 +7,7 @@ on:
       - 'dist/modding-express.js'
   workflow_dispatch:
 jobs:
-  Compile-Templates:
+  Create-Minified-Distribution:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -18,7 +18,7 @@ jobs:
       run: |
         npx minify ./dist/modding-express.js > ./dist/modding-express.min.js
         sed -i 's/var\s[a-zA-Z]\{1,\}=/const ModdingExpress=/1' ./dist/modding-express.min.js
-    - name: Deploy release files
+    - name: Push minified file
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
