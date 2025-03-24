@@ -16,8 +16,7 @@ jobs:
     - uses: actions/setup-node@v3
     - name: Output minified content
       run: |
-        npx minify ./dist/modding-express.js > ./dist/modding-express.min.js
-        sed -i 's/var\s[a-zA-Z]\{1,\}=/const ModdingExpress=/1' ./dist/modding-express.min.js
+        npx terser -c ecma=2016,reduce_vars=false -o ./dist/modding-express.min.js -- ./dist/modding-express.js
     - name: Push minified file
       run: |
         git config user.name "github-actions[bot]"

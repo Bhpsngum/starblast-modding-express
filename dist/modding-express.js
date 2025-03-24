@@ -299,7 +299,7 @@ const ModdingExpress = (function(){
 				catch (e) {
 					return {};
 				}
-			}
+			},
 		}
 
 		Object.defineProperties(dist, {
