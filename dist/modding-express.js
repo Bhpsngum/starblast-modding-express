@@ -311,7 +311,7 @@ const ModdingExpress = (function(){
 			},
 			sourceURLs: {
 				get: function () {
-					return Array.from(expressData.loaders.keys());
+					return [...expressData.loaders.keys()];
 				}
 			}
 		});
