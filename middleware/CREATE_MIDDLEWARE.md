@@ -20,11 +20,6 @@ A function executing when middleware is first loaded, containing these parameter
 - `options`: User-options passed to this middleware
 
 This function binds to the middleware object by default.
-### `initialize(instance)`
-A function executing when user calls `mod.initialize()` (preferably after all middlewares have been loaded), with these parameters:
-- `instance`: Modding Express instance.
-
-This function binds to the middleware object by default.
 ### `commands`
 An array, containing commands config object with these fields:
 - `name`: Name of the command

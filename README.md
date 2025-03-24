@@ -9,6 +9,11 @@ To get this feature, copy any of the file in [`dist`](./dist) folder to **the st
 const mod = ModdingExpress();
 ```
 
+You can also assign to global scope for easier debugging (for mod editor purposes only):
+```js
+globalThis.mod = mod;
+```
+
 The modding express object exposes these functions
 #### `mod.load(identifierOrConfigObject, options, force = false)`
 Loads the middleware.
@@ -62,8 +67,27 @@ Note that modification to values of `this` context of mod is discouraged, as it 
 
 Instead, modify their modding-express equivalent values.
 
-### `initialize()`
-Intialize your mod, this is preferably called after you load all the middleware and define your own custom game functions.
+### `mod.bind(event_name, ...handlers)`
+Add given handler function(s) to a specific event, supported events: `tick`, `event`, `playerTick` and `playerEvent`.
+
+### `mod.unbind(event_name, ...handlers)`
+Remove given handler function(s) to a specific event, supported events: `tick`, `event`, `playerTick` and `playerEvent`.
+
+If you provide no handlers, it removes all existing handlers for given event.
+### `mod.replace(event_name, existing_handler, ...new_handlers)`
+Replace an existing handler in given event with one or more handlers, supported events: `tick`, `event`, `playerTick` and `playerEvent`.
+
+- If called with no existing handler and new handlers, this function does nothing.
+- If called with only existing handler, it removes that handler from event (if exists).
+- If given existing handler does not exist in the event, it appends new handlers to the event instead.
+
+### `mod.options`
+The `this.options` object. This field is immutable.
+
+### `mod.sourceURLs`
+List of all middleware URLs loaded by the mod. This field is immutable.
+
+For Modding Space ports, you need to provide results from this field to create MS-comptabile mod code.
 
 ## Notes
 - Upon first mod load, your tab can be lagging for a while, this is because of synchronous run within mod editor.
