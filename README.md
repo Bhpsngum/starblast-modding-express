@@ -87,7 +87,7 @@ The `this.options` object. This field is immutable.
 ### `mod.sourceURLs`
 List of all middleware URLs loaded by the mod. This field is immutable.
 
-For Modding Space ports, you need to provide results from this field to create MS-comptabile mod code.
+For Modding Space ports, you need to provide results from this field to create MS-compatible mod code.
 
 ## Notes
 - Upon first mod load, your tab can be lagging for a while, this is because of synchronous run within mod editor.
