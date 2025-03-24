@@ -95,6 +95,7 @@ let codeManager;
 
 return {
 	name: "PIN Manager",
+	description: "A middleware to manage PINs for players.",
 	author: "Bhpsngum",
 	license: "MIT",
 	version: "1.0.0",

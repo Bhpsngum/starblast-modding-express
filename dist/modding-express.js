@@ -41,7 +41,7 @@ const ModdingExpress = (function(){
 	
 		let loadModule = function (obj, opts, reference = null) {
 			if (!obj) {
-				if (!reference) error(`Failed to resolve middleware from ${reference}: Received value is blank.`);
+				if (reference) error(`Failed to resolve middleware from ${reference}: Received value is blank.`);
 				else error("Failed to resolve a blank middleware.");
 				throw "";
 			}

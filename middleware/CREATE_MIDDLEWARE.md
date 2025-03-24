@@ -6,6 +6,8 @@ Your code must include a `return` statement, returning the middleware config obj
 A middleware object can contains these fields:
 ### `name`
 Name of the middleware
+### `description`
+Description of the middleware
 ### `author`
 Author of the middleware
 ### `version`
