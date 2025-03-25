@@ -6,7 +6,24 @@ To get this feature, copy any of the file in [`dist`](./dist) folder to **the st
 ## Usage
 ### Create a modding express object
 ```js
-const mod = ModdingExpress();
+const mod = ModdingExpress(OPTIONS);
+```
+
+Available options:
+```js
+{
+	/**
+	 * Whether to output modding express messages (for debugging), defaults to true
+	 **/
+	logging: true,
+
+	/**
+	 * Output messages to terminal, or console if set to false,
+	 * this only works if logging is enabled
+	 * If modding express cannot locate terminal internals, it will switch to console logging with a warning.
+	 **/
+	terminal_output: true,
+}
 ```
 
 You can also assign to global scope for easier debugging (for mod editor purposes only):
@@ -63,7 +80,8 @@ All handler functions are bound to `this` context of the mod by default, and`mod
 
 For backwards compatibilty, modding express will also register values from your `this` context if exists.
 
-Note that modification to values of `this` context of mod is discouraged, as it can introduce problem with the Modding Express code.
+You can also use `this.tick` and `this.options`, they will be ran last after all middleware and custom handlers are executed
+However, they won't be affected by control halting (passed from middleware).
 
 Instead, modify their modding-express equivalent values.
 

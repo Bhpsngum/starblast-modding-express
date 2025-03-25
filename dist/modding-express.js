@@ -1,9 +1,14 @@
 const ModdingExpress = (function(){
 	let _this = this;
-	return function (opts) {
+	return function (opts = {}) {
 		if (!game.custom.__MODDING_EXPRESS_DATA__) game.custom.__MODDING_EXPRESS_DATA__ = {
 			loaders: new Map(),
 		};
+
+		opts = Object.assign({
+			logging: true,
+			terminal_output: true,
+		}, opts);
 	
 		let moduleStack = new Map([
 			["tick", []],
@@ -12,7 +17,45 @@ const ModdingExpress = (function(){
 			["playerEvent", []],
 		]);
 	
-		let { terminal, commands } = game.modding, { echo } = terminal;
+		let { terminal, commands } = (game.modding || {}), { echo } = (terminal || {});
+
+		let message, error, warn;
+
+		if (opts.logging) {
+			if (opts.terminal_output) {
+				message = function (msg) {
+					echo(`[[bg;#fff;]&lsqb;ModdingExpress&rsqb; ${msg.replace(/\[/g, "&lsqb;").replace(/\]/g, "&rsqb;")}]`);
+				}
+		
+				error = function (msg) {
+					echo(`[[bg;orange;]&lsqb;ModdingExpress&rsqb; ${msg.replace(/\[/g, "&lsqb;").replace(/\]/g, "&rsqb;")}]`);
+				}
+
+				warn = function (msg) {
+					echo(`[[bg;yellow;]&lsqb;ModdingExpress&rsqb; ${msg.replace(/\[/g, "&lsqb;").replace(/\]/g, "&rsqb;")}]`);
+				}
+			}
+			else {
+				message = function (msg) {
+					console.log(`[ModdingExpress] ${msg}`);
+				}
+				error = function (msg) {
+					console.error(`[ModdingExpress] ${msg}`);
+				}
+				warn = function (msg) {
+					console.warn(`[ModdingExpress] ${msg}`);
+				}
+
+				if (opts.terminal_output) {
+					warn(`Warning: Failed to locate terminal internals. Switched to console logging instead.`);
+				}
+			}
+		}
+		else message = error = warn = function () {};
+
+		if (!commands) {
+			warn(`Warning: Failed to locate terminal internals. Commands will be unavailable.`);
+		}
 
 		let globalTick = _this.tick, globalEvent = _this.event, globalOptions = _this.options || {};
 
@@ -150,14 +193,6 @@ const ModdingExpress = (function(){
 			return;
 		}
 	
-		let message = function (msg) {
-			echo(`[[bg;#fff;]&lsqb;ModdingExpress&rsqb; ${msg.replace(/\[/g, "&lsqb;").replace(/\]/g, "&rsqb;")}]`);
-		}
-	
-		let error = function (msg) {
-			echo(`[[bg;orange;]&lsqb;ModdingExpress&rsqb; ${msg.replace(/\[/g, "&lsqb;").replace(/\]/g, "&rsqb;")}]`);
-		}
-	
 		let safeExec = function (func, bindThis, ...args) {
 			if ("function" === typeof func) try {
 				func.call(bindThis, ...args);
@@ -193,7 +228,7 @@ const ModdingExpress = (function(){
 			}
 
 			// load commands
-			if (Array.isArray(obj.commands)) {
+			if (commands && Array.isArray(obj.commands)) {
 				let i = 0;
 				for (let command of obj.commands) {
 					let index = i++;
