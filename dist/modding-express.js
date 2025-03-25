@@ -22,7 +22,7 @@ const ModdingExpress = (function(){
 		let message, error, warn;
 
 		if (opts.logging) {
-			if (opts.terminal_output) {
+			if (opts.terminal_output && "function" === typeof echo) {
 				message = function (msg) {
 					echo(`[[bg;#fff;]&lsqb;ModdingExpress&rsqb; ${msg.replace(/\[/g, "&lsqb;").replace(/\]/g, "&rsqb;")}]`);
 				}
